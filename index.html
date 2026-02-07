@@ -13,6 +13,7 @@
     font-family: Arial, Helvetica, sans-serif;
     background: #ffe6eb;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
   }
@@ -23,36 +24,33 @@
     text-align: center;
     padding: 0 16px;
     margin-bottom: 40px;
+    z-index: 3;
+  }
+
+  button {
+    border: none;
+    border-radius: 14px;
+    padding: 18px 38px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    position: fixed;
+    z-index: 4;
   }
 
   #yes {
     background: #ff4d6d;
     color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 18px 38px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    position: fixed;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    z-index: 3;
   }
 
   #no {
     background: #adb5bd;
     color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 18px 38px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    position: fixed;
     left: 50%;
-    top: 60%;
+    top: 62%;
     transform: translate(-50%, -50%);
-    z-index: 3;
   }
 
   /* Floating hearts */
@@ -114,34 +112,48 @@
 
   let noCount = 0;
   const maxNoClicks = 30;
+  let locked = false;
 
-  noBtn.addEventListener("click", () => {
+  // Unlock audio on first interaction (required by browsers)
+  document.addEventListener("pointerdown", () => {
+    sound.play().then(() => {
+      sound.pause();
+      sound.currentTime = 0;
+    }).catch(() => {});
+  }, { once: true });
+
+  noBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    if (locked) return;
+    locked = true;
+
     noCount++;
 
-    // play sound
+    // play sound safely
     sound.currentTime = 0;
-    sound.play();
+    sound.play().catch(() => {});
 
-    // remove after 30 clicks
     if (noCount >= maxNoClicks) {
       noBtn.remove();
       return;
     }
 
-    const buttonWidth = noBtn.offsetWidth;
-    const buttonHeight = noBtn.offsetHeight;
+    const bw = noBtn.offsetWidth;
+    const bh = noBtn.offsetHeight;
 
-    const maxX = window.innerWidth - buttonWidth - 20;
-    const maxY = window.innerHeight - buttonHeight - 20;
-
-    const x = Math.random() * maxX;
-    const y = Math.random() * maxY;
+    const x = Math.random() * (window.innerWidth - bw - 20);
+    const y = Math.random() * (window.innerHeight - bh - 20);
 
     noBtn.style.left = `${x}px`;
     noBtn.style.top = `${y}px`;
+
+    // release lock after movement
+    setTimeout(() => {
+      locked = false;
+    }, 250);
   });
 
-  yesBtn.addEventListener("click", () => {
+  yesBtn.addEventListener("pointerdown", () => {
     document.body.innerHTML = `
       <div style="
         height:100vh;
@@ -160,7 +172,7 @@
     `;
   });
 
-  // create floating hearts
+  // Hearts
   for (let i = 0; i < 30; i++) {
     const heart = document.createElement("div");
     heart.className = "heart";
