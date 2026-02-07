@@ -2,47 +2,59 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Valentine 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Valentine?</title>
 
 <style>
   body {
     margin: 0;
     height: 100vh;
-    background: #ffe6ea;
     overflow: hidden;
-    font-family: Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffe6eb;
   }
 
-  .container {
+  .center {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     text-align: center;
-    position: relative;
-    top: 40%;
-    transform: translateY(-40%);
+    z-index: 5;
   }
 
   h1 {
-    color: #ff4d6d;
-    font-size: 2.2rem;
+    font-size: 2.4rem;
+    color: #d6336c;
     margin-bottom: 30px;
+    padding: 0 16px;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
   }
 
   button {
-    padding: 15px 35px;
-    font-size: 1.1rem;
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
+    padding: 18px 42px;
+    font-size: 1.2rem;
     cursor: pointer;
   }
 
   #yes {
     background: #ff4d6d;
     color: white;
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
   }
 
-  #yes.glow {
-    box-shadow: 0 0 25px #ff4d6d;
+  /* Glow animation */
+  .yes-glow {
+    box-shadow: 0 0 25px rgba(255, 77, 109, 0.9);
+    transform: scale(1.08);
   }
 
   #no {
@@ -50,126 +62,146 @@
     color: white;
     position: fixed;
     left: 50%;
-    top: 60%;
+    top: calc(50% + 120px);
     transform: translate(-50%, -50%);
+    z-index: 6;
   }
 
-  #message {
-    margin-top: 20px;
-    font-size: 2rem;
-    color: #ff4d6d;
-    display: none;
-    animation: popIn 0.8s ease forwards;
-  }
-
-  @keyframes popIn {
-    from { transform: scale(0.6); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  /* background hearts */
-  .bg-heart {
-    position: absolute;
-    font-size: 20px;
-    opacity: 0.4;
-    animation: floatUp 6s linear infinite;
-  }
-
-  @keyframes floatUp {
-    from { transform: translateY(100vh); }
-    to { transform: translateY(-10vh); }
-  }
-
-  /* YES hearts */
-  .yes-heart {
+  /* Floating hearts */
+  .heart {
     position: fixed;
-    bottom: -30px;
-    font-size: 26px;
-    animation: explode 4s linear forwards;
-    pointer-events: none;
+    width: 12px;
+    height: 12px;
+    background: pink;
+    transform: rotate(45deg);
+    animation: float linear infinite;
+    opacity: 0.6;
+    z-index: 1;
   }
 
-  @keyframes explode {
-    from { transform: translateY(0) scale(1); opacity: 1; }
-    to { transform: translateY(-120vh) scale(1.6); opacity: 0; }
+  .heart::before,
+  .heart::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    background: pink;
+    border-radius: 50%;
+    position: absolute;
+  }
+
+  .heart::before {
+    top: -6px;
+    left: 0;
+  }
+
+  .heart::after {
+    left: -6px;
+    top: 0;
+  }
+
+  @keyframes float {
+    from {
+      transform: translateY(100vh) rotate(45deg);
+    }
+    to {
+      transform: translateY(-10vh) rotate(45deg);
+    }
   }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h1>Will you be my valentine? 💖</h1>
-  <button id="yes">Yes</button><br/><br/>
-  <button id="no">No</button>
-  <div id="message">yay! happy propose day 💕</div>
+<div class="center">
+  <h1>Will you be my Valentine?</h1>
+  <div class="buttons">
+    <button id="yes">Yes</button>
+  </div>
 </div>
 
-<!-- NO click sound -->
-<audio id="noSound" src="Fahhhh - Sound effect (HD).mp3"></audio>
+<button id="no">No</button>
 
-<!-- YES music -->
-<audio id="yesMusic" src="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/7b/88/47/7b88477e-8b6b-1c1d-18ad-0fa5db6b28c5/mzaf_11011453643688389045.plus.aac.p.m4a"></audio>
+<audio id="noSound" src="Fahhhh - Sound effect (HD).mp3" preload="auto"></audio>
 
 <script>
   const noBtn = document.getElementById("no");
   const yesBtn = document.getElementById("yes");
-  const message = document.getElementById("message");
-  const noSound = document.getElementById("noSound");
-  const yesMusic = document.getElementById("yesMusic");
+  const sound = document.getElementById("noSound");
 
-  let noClicks = 0;
+  let noCount = 0;
+  const maxNoClicks = 30;
+  let locked = false;
 
-  noBtn.addEventListener("click", () => {
-    noClicks++;
+  // Unlock audio once
+  document.addEventListener("pointerdown", () => {
+    sound.play().then(() => {
+      sound.pause();
+      sound.currentTime = 0;
+    }).catch(() => {});
+  }, { once: true });
 
-    noSound.currentTime = 0;
-    noSound.play();
+  noBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    if (locked) return;
+    locked = true;
 
-    yesBtn.classList.add("glow");
-    setTimeout(() => yesBtn.classList.remove("glow"), 300);
+    noCount++;
 
-    if (noClicks >= 30) {
+    // Play sound
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+
+    // YES button glow (ONLY addition)
+    yesBtn.classList.add("yes-glow");
+    setTimeout(() => {
+      yesBtn.classList.remove("yes-glow");
+    }, 300);
+
+    if (noCount >= maxNoClicks) {
       noBtn.remove();
       return;
     }
 
-    const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-    const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+    const bw = noBtn.offsetWidth;
+    const bh = noBtn.offsetHeight;
 
-    noBtn.style.left = x + "px";
-    noBtn.style.top = y + "px";
+    const x = Math.random() * (window.innerWidth - bw - 20);
+    const y = Math.random() * (window.innerHeight - bh - 20);
+
+    noBtn.style.left = `${x}px`;
+    noBtn.style.top = `${y}px`;
+
+    setTimeout(() => {
+      locked = false;
+    }, 250);
   });
 
-  yesBtn.addEventListener("click", () => {
-    message.style.display = "block";
-
-    yesMusic.volume = 0.8;
-    yesMusic.play();
-
-    spawnYesHearts();
+  yesBtn.addEventListener("pointerdown", () => {
+    document.body.innerHTML = `
+      <div style="
+        height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        background:#ffe6eb;
+        font-family:Arial;
+        text-align:center;
+        padding:20px;
+      ">
+        <h1 style="color:#d6336c;font-size:2.8rem;">
+          💖 yay! happy propose day 💖
+        </h1>
+      </div>
+    `;
   });
 
-  function spawnYesHearts() {
-    const emojis = ["💖","💕","💘","💗","💝"];
-    for (let i = 0; i < 30; i++) {
-      const heart = document.createElement("div");
-      heart.className = "yes-heart";
-      heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      heart.style.left = Math.random() * 100 + "vw";
-      heart.style.animationDuration = 3 + Math.random() * 2 + "s";
-      document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 5000);
-    }
-  }
-
-  // background hearts
-  for (let i = 0; i < 18; i++) {
+  // Hearts
+  for (let i = 0; i < 28; i++) {
     const heart = document.createElement("div");
-    heart.className = "bg-heart";
-    heart.textContent = "💗";
+    heart.className = "heart";
     heart.style.left = Math.random() * 100 + "vw";
-    heart.style.animationDuration = 4 + Math.random() * 4 + "s";
+    heart.style.animationDuration = 5 + Math.random() * 6 + "s";
+    heart.style.opacity = Math.random();
     document.body.appendChild(heart);
   }
 </script>
