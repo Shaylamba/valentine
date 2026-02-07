@@ -51,7 +51,6 @@
     transition: box-shadow 0.3s ease, transform 0.3s ease;
   }
 
-  /* Glow animation */
   .yes-glow {
     box-shadow: 0 0 25px rgba(255, 77, 109, 0.9);
     transform: scale(1.08);
@@ -67,7 +66,6 @@
     z-index: 6;
   }
 
-  /* Floating hearts */
   .heart {
     position: fixed;
     width: 12px;
@@ -100,12 +98,8 @@
   }
 
   @keyframes float {
-    from {
-      transform: translateY(100vh) rotate(45deg);
-    }
-    to {
-      transform: translateY(-10vh) rotate(45deg);
-    }
+    from { transform: translateY(100vh) rotate(45deg); }
+    to { transform: translateY(-10vh) rotate(45deg); }
   }
 </style>
 </head>
@@ -132,30 +126,25 @@
   const maxNoClicks = 30;
   let locked = false;
 
-  // Unlock audio once
-  document.addEventListener("pointerdown", () => {
+  // Unlock audio once (CLICK = reliable)
+  document.addEventListener("click", () => {
     sound.play().then(() => {
       sound.pause();
       sound.currentTime = 0;
     }).catch(() => {});
   }, { once: true });
 
-  noBtn.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
+  noBtn.addEventListener("click", () => {
     if (locked) return;
     locked = true;
 
     noCount++;
 
-    // Play sound
     sound.currentTime = 0;
     sound.play().catch(() => {});
 
-    // YES button glow (ONLY addition)
     yesBtn.classList.add("yes-glow");
-    setTimeout(() => {
-      yesBtn.classList.remove("yes-glow");
-    }, 300);
+    setTimeout(() => yesBtn.classList.remove("yes-glow"), 300);
 
     if (noCount >= maxNoClicks) {
       noBtn.remove();
@@ -171,12 +160,10 @@
     noBtn.style.left = `${x}px`;
     noBtn.style.top = `${y}px`;
 
-    setTimeout(() => {
-      locked = false;
-    }, 250);
+    setTimeout(() => locked = false, 200);
   });
 
-  yesBtn.addEventListener("pointerdown", () => {
+  yesBtn.addEventListener("click", () => {
     document.body.innerHTML = `
       <div style="
         height:100vh;
@@ -195,7 +182,6 @@
     `;
   });
 
-  // Hearts
   for (let i = 0; i < 28; i++) {
     const heart = document.createElement("div");
     heart.className = "heart";
