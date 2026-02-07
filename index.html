@@ -12,45 +12,59 @@
     overflow: hidden;
     font-family: Arial, Helvetica, sans-serif;
     background: #ffe6eb;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  }
+
+  .center {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 5;
   }
 
   h1 {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
     color: #d6336c;
-    text-align: center;
+    margin-bottom: 30px;
     padding: 0 16px;
-    margin-bottom: 40px;
-    z-index: 3;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
   }
 
   button {
     border: none;
     border-radius: 14px;
-    padding: 18px 38px;
+    padding: 18px 42px;
     font-size: 1.2rem;
     cursor: pointer;
-    position: fixed;
-    z-index: 4;
   }
 
   #yes {
     background: #ff4d6d;
     color: white;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  /* Glow animation */
+  .yes-glow {
+    box-shadow: 0 0 25px rgba(255, 77, 109, 0.9);
+    transform: scale(1.08);
   }
 
   #no {
     background: #adb5bd;
     color: white;
+    position: fixed;
     left: 50%;
-    top: 62%;
+    top: calc(50% + 120px);
     transform: translate(-50%, -50%);
+    z-index: 6;
   }
 
   /* Floating hearts */
@@ -98,9 +112,13 @@
 
 <body>
 
-<h1>Will you be my Valentine?</h1>
+<div class="center">
+  <h1>Will you be my Valentine?</h1>
+  <div class="buttons">
+    <button id="yes">Yes</button>
+  </div>
+</div>
 
-<button id="yes">Yes</button>
 <button id="no">No</button>
 
 <audio id="noSound" src="Fahhhh - Sound effect (HD).mp3" preload="auto"></audio>
@@ -114,7 +132,7 @@
   const maxNoClicks = 30;
   let locked = false;
 
-  // Unlock audio on first interaction (required by browsers)
+  // Unlock audio once
   document.addEventListener("pointerdown", () => {
     sound.play().then(() => {
       sound.pause();
@@ -129,9 +147,15 @@
 
     noCount++;
 
-    // play sound safely
+    // Play sound
     sound.currentTime = 0;
     sound.play().catch(() => {});
+
+    // YES button glow (ONLY addition)
+    yesBtn.classList.add("yes-glow");
+    setTimeout(() => {
+      yesBtn.classList.remove("yes-glow");
+    }, 300);
 
     if (noCount >= maxNoClicks) {
       noBtn.remove();
@@ -147,7 +171,6 @@
     noBtn.style.left = `${x}px`;
     noBtn.style.top = `${y}px`;
 
-    // release lock after movement
     setTimeout(() => {
       locked = false;
     }, 250);
@@ -173,7 +196,7 @@
   });
 
   // Hearts
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 28; i++) {
     const heart = document.createElement("div");
     heart.className = "heart";
     heart.style.left = Math.random() * 100 + "vw";
