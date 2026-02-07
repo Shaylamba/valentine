@@ -17,52 +17,54 @@
     align-items: center;
   }
 
-  .container {
-    text-align: center;
-    position: relative;
-    z-index: 2;
-  }
-
   h1 {
     font-size: 2.2rem;
     color: #d6336c;
-    margin-bottom: 40px;
+    text-align: center;
     padding: 0 16px;
-  }
-
-  button {
-    border: none;
-    border-radius: 14px;
-    padding: 18px 38px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    position: absolute;
+    margin-bottom: 40px;
   }
 
   #yes {
     background: #ff4d6d;
     color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 18px 38px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    position: fixed;
     left: 50%;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
   }
 
   #no {
     background: #adb5bd;
     color: white;
-    top: 80px;
+    border: none;
+    border-radius: 14px;
+    padding: 18px 38px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    position: fixed;
     left: 50%;
-    transform: translateX(-50%);
+    top: 60%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
   }
 
   /* Floating hearts */
   .heart {
-    position: absolute;
+    position: fixed;
     width: 12px;
     height: 12px;
     background: pink;
     transform: rotate(45deg);
     animation: float linear infinite;
     opacity: 0.6;
+    z-index: 1;
   }
 
   .heart::before,
@@ -98,13 +100,12 @@
 
 <body>
 
-<audio id="noSound" src="Fahhhh - Sound effect (HD).mp3"></audio>
+<h1>Will you be my Valentine?</h1>
 
-<div class="container">
-  <h1>Will you be my Valentine?</h1>
-  <button id="yes">Yes</button>
-  <button id="no">No</button>
-</div>
+<button id="yes">Yes</button>
+<button id="no">No</button>
+
+<audio id="noSound" src="Fahhhh - Sound effect (HD).mp3" preload="auto"></audio>
 
 <script>
   const noBtn = document.getElementById("no");
@@ -114,51 +115,31 @@
   let noCount = 0;
   const maxNoClicks = 30;
 
-  function moveNoButton() {
-let noCount = 0;
-const maxNoClicks = 30;
-let isMoving = false;
+  noBtn.addEventListener("click", () => {
+    noCount++;
 
-function moveNoButton() {
-  if (isMoving) return;
-  isMoving = true;
+    // play sound
+    sound.currentTime = 0;
+    sound.play();
 
-  noCount++;
+    // remove after 30 clicks
+    if (noCount >= maxNoClicks) {
+      noBtn.remove();
+      return;
+    }
 
-  // play sound
-  sound.currentTime = 0;
-  sound.play();
+    const buttonWidth = noBtn.offsetWidth;
+    const buttonHeight = noBtn.offsetHeight;
 
-  // remove only AFTER 30 genuine clicks
-  if (noCount >= maxNoClicks) {
-    noBtn.remove();
-    return;
-  }
+    const maxX = window.innerWidth - buttonWidth - 20;
+    const maxY = window.innerHeight - buttonHeight - 20;
 
-  const padding = 100;
-  const x = Math.random() * (window.innerWidth - padding);
-  const y = Math.random() * (window.innerHeight - padding);
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
 
-  noBtn.style.left = x + "px";
-  noBtn.style.top = y + "px";
-
-  // allow next click after movement settles
-  setTimeout(() => {
-    isMoving = false;
-  }, 200);
-}
-
-
-    // random position (mobile safe)
-    const padding = 80;
-    const x = Math.random() * (window.innerWidth - padding);
-    const y = Math.random() * (window.innerHeight - padding);
-
-    noBtn.style.left = x + "px";
-    noBtn.style.top = y + "px";
-  }
-
-  noBtn.addEventListener("click", moveNoButton);
+    noBtn.style.left = `${x}px`;
+    noBtn.style.top = `${y}px`;
+  });
 
   yesBtn.addEventListener("click", () => {
     document.body.innerHTML = `
@@ -179,8 +160,8 @@ function moveNoButton() {
     `;
   });
 
-  // create hearts
-  for (let i = 0; i < 28; i++) {
+  // create floating hearts
+  for (let i = 0; i < 30; i++) {
     const heart = document.createElement("div");
     heart.className = "heart";
     heart.style.left = Math.random() * 100 + "vw";
