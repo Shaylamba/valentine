@@ -66,6 +66,7 @@
     z-index: 6;
   }
 
+  /* Floating background hearts */
   .heart {
     position: fixed;
     width: 12px;
@@ -108,7 +109,6 @@
     position: fixed;
     inset: 0;
     background: #ffe6eb;
-    display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
@@ -156,7 +156,7 @@
 
     noCount++;
 
-    // Play sound ONLY on No
+    // Chrome-safe sound
     const sfx = sound.cloneNode();
     sfx.play().catch(() => {});
 
@@ -178,15 +178,15 @@
   });
 
   yesBtn.addEventListener("click", () => {
-    // STOP any possible audio
+    // Stop sound just in case
     sound.pause();
     sound.currentTime = 0;
 
-    // Hide question + buttons
+    // Hide first screen
     main.style.display = "none";
     noBtn.style.display = "none";
 
-    // Show success
+    // Show success screen
     success.style.display = "flex";
   });
 
