@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Valentine?</title>
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffe6eb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .container {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    color: #d6336c;
+    margin-bottom: 40px;
+    padding: 0 16px;
+  }
+
+  button {
+    border: none;
+    border-radius: 14px;
+    padding: 18px 38px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    position: absolute;
+  }
+
+  #yes {
+    background: #ff4d6d;
+    color: white;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  #no {
+    background: #adb5bd;
+    color: white;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* Floating hearts */
+  .heart {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: pink;
+    transform: rotate(45deg);
+    animation: float linear infinite;
+    opacity: 0.6;
+  }
+
+  .heart::before,
+  .heart::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    background: pink;
+    border-radius: 50%;
+    position: absolute;
+  }
+
+  .heart::before {
+    top: -6px;
+    left: 0;
+  }
+
+  .heart::after {
+    left: -6px;
+    top: 0;
+  }
+
+  @keyframes float {
+    from {
+      transform: translateY(100vh) rotate(45deg);
+    }
+    to {
+      transform: translateY(-10vh) rotate(45deg);
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<audio id="noSound" src="Fahhhh - Sound effect (HD).mp3"></audio>
+
+<div class="container">
+  <h1>Will you be my Valentine?</h1>
+  <button id="yes">Yes</button>
+  <button id="no">No</button>
+</div>
+
+<script>
+  const noBtn = document.getElementById("no");
+  const yesBtn = document.getElementById("yes");
+  const sound = document.getElementById("noSound");
+
+  let noCount = 0;
+  const maxNoClicks = 30;
+
+  function moveNoButton() {
+    noCount++;
+
+    // play sound
+    sound.currentTime = 0;
+    sound.play();
+
+    // remove after 30 clicks
+    if (noCount >= maxNoClicks) {
+      noBtn.remove();
+      return;
+    }
+
+    // random position (mobile safe)
+    const padding = 80;
+    const x = Math.random() * (window.innerWidth - padding);
+    const y = Math.random() * (window.innerHeight - padding);
+
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+  }
+
+  noBtn.addEventListener("click", moveNoButton);
+
+  yesBtn.addEventListener("click", () => {
+    document.body.innerHTML = `
+      <div style="
+        height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        background:#ffe6eb;
+        font-family:Arial;
+        text-align:center;
+        padding:20px;
+      ">
+        <h1 style="color:#d6336c;font-size:2.8rem;">
+          💖 yay! happy propose day 💖
+        </h1>
+      </div>
+    `;
+  });
+
+  // create hearts
+  for (let i = 0; i < 28; i++) {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDuration = 5 + Math.random() * 6 + "s";
+    heart.style.opacity = Math.random();
+    document.body.appendChild(heart);
+  }
+</script>
+
+</body>
+</html>
