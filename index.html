@@ -101,12 +101,31 @@
     from { transform: translateY(100vh) rotate(45deg); }
     to { transform: translateY(-10vh) rotate(45deg); }
   }
+
+  /* Success screen */
+  #success {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #ffe6eb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    z-index: 10;
+  }
+
+  #success h1 {
+    font-size: 2.8rem;
+    color: #d6336c;
+  }
 </style>
 </head>
 
 <body>
 
-<div class="center">
+<div class="center" id="main">
   <h1>Will you be my Valentine?</h1>
   <div class="buttons">
     <button id="yes">Yes</button>
@@ -115,24 +134,21 @@
 
 <button id="no">No</button>
 
+<div id="success">
+  <h1>💖 yay! happy propose day 💖</h1>
+</div>
+
 <audio id="noSound" src="Fahhhh - Sound effect (HD).mp3" preload="auto"></audio>
 
 <script>
   const noBtn = document.getElementById("no");
   const yesBtn = document.getElementById("yes");
+  const main = document.getElementById("main");
+  const success = document.getElementById("success");
   const sound = document.getElementById("noSound");
 
   let noCount = 0;
-  const maxNoClicks = 30;
   let locked = false;
-
-  // Unlock audio once (CLICK = reliable)
-  document.addEventListener("click", () => {
-    sound.play().then(() => {
-      sound.pause();
-      sound.currentTime = 0;
-    }).catch(() => {});
-  }, { once: true });
 
   noBtn.addEventListener("click", () => {
     if (locked) return;
@@ -140,48 +156,41 @@
 
     noCount++;
 
-    sound.currentTime = 0;
-    sound.play().catch(() => {});
+    // Play sound ONLY on No
+    const sfx = sound.cloneNode();
+    sfx.play().catch(() => {});
 
     yesBtn.classList.add("yes-glow");
     setTimeout(() => yesBtn.classList.remove("yes-glow"), 300);
 
-    if (noCount >= maxNoClicks) {
+    if (noCount >= 30) {
       noBtn.remove();
       return;
     }
 
-    const bw = noBtn.offsetWidth;
-    const bh = noBtn.offsetHeight;
+    const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
+    const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 20);
 
-    const x = Math.random() * (window.innerWidth - bw - 20);
-    const y = Math.random() * (window.innerHeight - bh - 20);
-
-    noBtn.style.left = `${x}px`;
-    noBtn.style.top = `${y}px`;
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
 
     setTimeout(() => locked = false, 200);
   });
 
   yesBtn.addEventListener("click", () => {
-    document.body.innerHTML = `
-      <div style="
-        height:100vh;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        background:#ffe6eb;
-        font-family:Arial;
-        text-align:center;
-        padding:20px;
-      ">
-        <h1 style="color:#d6336c;font-size:2.8rem;">
-          💖 yay! happy propose day 💖
-        </h1>
-      </div>
-    `;
+    // STOP any possible audio
+    sound.pause();
+    sound.currentTime = 0;
+
+    // Hide question + buttons
+    main.style.display = "none";
+    noBtn.style.display = "none";
+
+    // Show success
+    success.style.display = "flex";
   });
 
+  // Background hearts
   for (let i = 0; i < 28; i++) {
     const heart = document.createElement("div");
     heart.className = "heart";
